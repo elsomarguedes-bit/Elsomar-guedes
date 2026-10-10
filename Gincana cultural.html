@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Gincana Cultural</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#eab20a;
+padding:20px;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+background:rgb(216, 39, 19);
+padding:40px;
+border-radius:20px;
+}
+
+h1{
+text-align:center;
+}
+h2{
+text-align:center;
+}
+h3{
+text-align:center;
+}
+h4{
+text-align:center;
+}
+input,button{
+padding:10px;
+margin:5px;
+}
+
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+th,td{
+border:4px solid #000304;
+padding:5px;
+text-align:center;
+}
+
+th{
+background:#032f50;
+color:rgb(255, 255, 255);
+}
+img{
+    display:block;
+    margin:auto;
+}
+
+input{
+    background-color: rgb(222, 233, 236); /* cor do fundo */
+    color: black;               /* cor do texto */
+    border: 3px solid rgb(1, 1, 16);     /* cor da borda */
+}
+button{
+    background-color: rgb(222, 233, 236); /* cor do fundo */
+    color: black;               /* cor do texto */
+    border: 3px solid rgb(1, 1, 16);     /* cor da borda */
+
+}
+.botao-centro{
+text-align:center;
+margin-top:20px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLxfSczf5o0PlnFm9rWEAU0WE8WAvb53Gcjw&s" alt="" width=120" height="120">CETI- Dr. Dionisio Rodrigues Nogueira</h1>
+<h2>GINCANA CULTURAL 2026</h2>
+<h3>TEMA: A VIRADA DO SÉCULO</h3>
+<h4>Sistema de cadastro das equipes,registro de atividades e contagem de pontos.</h4>
+
+<input id="equipe"
+placeholder="Nome da Equipe">
+
+<input id="atividade"
+placeholder="Tipo de Atividade">
+
+<input id="pontos"
+type="number"
+placeholder="Valor dos Pontos">
+
+<button onclick="adicionar()">
+Adicionar os dados
+</button>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Equipe</th>
+<th>Atividade</th>
+<th>Pontos</th>
+<th>Exclusão de dados</th>
+</tr>
+
+</thead>
+
+<tbody id="dados">
+
+</tbody>
+
+</table>
+
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Posição</th>
+<th>Equipe</th>
+<th>Total de Pontos das equipes</th>
+
+</tr>
+
+<h2>Colocação e total de pontos de cada equipe</h2>
+</thead>
+
+<tbody id="ranking">
+
+</tbody>
+
+</table>
+<div class="botao-centro">
+<button onclick="exportarCSV()">
+Exportar dados CSV
+</button>
+
+<button onclick="exportarTXT()">
+Exportar dados TXT
+</button>
+</div>
+</div>
+
+<script>
+
+let registros =
+JSON.parse(
+localStorage.getItem(
+"gincana"
+)) || [];
+
+mostrarTabela();
+mostrarRanking();
+
+function adicionar(){
+
+let equipe =
+document.getElementById(
+"equipe").value;
+
+let atividade =
+document.getElementById(
+"atividade").value;
+
+let pontos =
+parseInt(
+document.getElementById(
+"pontos").value);
+
+if(!equipe ||
+!atividade ||
+isNaN(pontos)){
+
+alert(
+"Preencha tudo"
+);
+
+return;
+
+}
+
+registros.push({
+
+equipe,
+atividade,
+pontos
+
+});
+
+salvar();
+
+mostrarTabela();
+
+mostrarRanking();
+
+limpar();
+
+}
+
+function salvar(){
+
+localStorage.setItem(
+
+"gincana",
+
+JSON.stringify(
+registros)
+
+);
+
+}
+
+function limpar(){
+
+document.getElementById(
+"equipe").value="";
+
+document.getElementById(
+"atividade").value="";
+
+document.getElementById(
+"pontos").value="";
+
+}
+
+function mostrarTabela(){
+
+let tabela=
+document.getElementById(
+"dados");
+
+tabela.innerHTML="";
+
+registros.forEach((r,i)=>{
+
+tabela.innerHTML+=`
+
+<tr>
+
+<td>${r.equipe}</td>
+
+<td>${r.atividade}</td>
+
+<td>${r.pontos}</td>
+
+<td>
+
+<button
+onclick="remover(${i})">
+
+Excluir
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
+function remover(i){
+
+registros.splice(i,1);
+
+salvar();
+
+mostrarTabela();
+
+mostrarRanking();
+
+}
+
+function mostrarRanking(){
+
+let totais={};
+
+registros.forEach(r=>{
+
+if(!totais[
+r.equipe]){
+
+totais[
+r.equipe]=0;
+
+}
+
+totais[
+r.equipe]+=
+r.pontos;
+
+});
+
+let ranking=
+
+Object.entries(
+totais)
+
+.sort((a,b)=>
+
+b[1]-a[1]
+
+);
+
+let tabela=
+
+document.getElementById(
+"ranking");
+
+tabela.innerHTML="";
+
+ranking.forEach(
+(r,i)=>{
+
+tabela.innerHTML+=`
+
+<tr>
+
+<td>
+
+${i+1}º
+
+</td>
+
+<td>
+
+${r[0]}
+
+</td>
+
+<td>
+
+${r[1]}
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+function gerarRanking(){
+
+let totais={};
+
+registros.forEach(r=>{
+
+if(!totais[r.equipe]){
+
+totais[r.equipe]=0;
+
+}
+
+totais[r.equipe]+=r.pontos;
+
+});
+
+return Object
+.entries(totais)
+
+.sort((a,b)=>
+
+b[1]-a[1]
+
+);
+
+}
+
+function exportarCSV(){
+
+let ranking=
+gerarRanking();
+
+let csv=
+
+"Posicao,Equipe,Total\n";
+
+ranking.forEach((r,i)=>{
+
+csv +=
+
+`${i+1},
+${r[0]},
+${r[1]}\n`;
+
+});
+
+let blob=
+
+new Blob(
+[csv],
+{
+type:
+"text/csv"
+}
+
+);
+
+let link=
+document.createElement(
+"a"
+);
+
+link.href=
+
+URL.createObjectURL(
+blob
+);
+
+link.download=
+
+"Resulçtado_gincana.csv";
+
+link.click();
+
+}
+
+function exportarTXT(){
+
+let ranking=
+gerarRanking();
+
+let texto=
+
+"RESULTADO FINAL\n\n";
+
+ranking.forEach((r,i)=>{
+
+texto +=
+
+`${i+1}º Lugar
+${r[0]}
+
+${r[1]} Pontos
+
+\n`;
+
+});
+
+let blob=
+
+new Blob(
+[texto],
+
+{
+type:
+"text/plain"
+}
+
+);
+
+let link=
+
+document.createElement(
+"a"
+);
+
+link.href=
+
+URL.createObjectURL(
+blob
+);
+
+link.download=
+
+"Resultado da gincana.txt";
+
+link.click();
+
+}
+
+</script>
+
+</body>
+
+</html>
